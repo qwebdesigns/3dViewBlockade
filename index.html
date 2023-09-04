@@ -27,8 +27,6 @@
 
 <body>
 
-    <input type="checkbox" id="chedr">
-
     <canvas id="c"></canvas>
 
     <!--
@@ -37,298 +35,301 @@
     -->
 
 
-    <select id="selectbox">
-        <option value="./textures.png">1</option>
-        <option value="./SKIN_YODA_GREEN.png">2</option>
-        <option value="./SKIN_WITCH_GREEN.png">3</option>
-        <option value="./SKIN_TOXI_RED.png">4</option>
-        <option value="./SKIN_SOLDIER_YELLOW.png">5</option>
-        <option value="./SKIN_SF_VETERAN_GREEN.png">6</option>
-        <option value="./SKIN_RORSCHACH_YELLOW.png">7</option>
-    </select>
+    <input type="button" value="push" name="SKIN_ASSASSIN_RED" id="buttontest">
 
 
     <script type="module">
         import * as THREE from 'three';
-            import {
-                OBJLoader
-            } from 'three/addons/loaders/OBJLoader.js';
-            import {
-                OrbitControls
-            } from 'three/addons/controls/OrbitControls.js';
+        import {
+            OBJLoader
+        } from 'three/addons/loaders/OBJLoader.js';
+        import {
+            OrbitControls
+        } from 'three/addons/controls/OrbitControls.js';
 
-            var jsonData;
-            var skinsData;
-            var shareValue;
-            Toastify({
-                text: "Идет загрузка данных...",
-                duration: 1500,
-                close: true
-            }).showToast();
-            $(document).ready(function () {
-                var spreadsheetId = '1NYl838ERKhx42vrycL6bKxxWEpWwCbFW1OFQ0ePGrw0';
-                var apiKey = 'AIzaSyAUIMhDDRWdIkqP1DhPVXlp0QN6AawIQ04';
-                var sheetName = 'DataList';
-                var column = 'D';
-                // Получение "глубины" столбца D
-                var depthUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!${column}:${column}?key=${apiKey}`;
-                $.get(depthUrl, function (response) {
-                    var depth = response.values.length;
-                    // Формирование диапазона
-                    var range = `${sheetName}!A2:I${depth + 1}`;
-                    var dataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
-                    // Получение данных
-                    $.get(dataUrl, function (response) {
-                        var values = response.values;
-                        // Преобразование данных в формат JSON
-                        jsonData = values.map(row => ({
-                            'Name': row[0],
-                            'Series': row[1],
-                            'Price': row[2],
-                            'TypeClaim': row[3],
-                            'ResistBust': row[4],
-                            'OtherBust': row[5],
-                            'Image': row[6],
-                            'Badge': row[7],
-                            'TextureName': row[8]
-                        }));
-                        //console.table(jsonData);
+        var jsonData;
+        var skinsData;
+        var shareValue;
+        Toastify({
+            text: "Идет загрузка данных...",
+            duration: 1500,
+            close: true
+        }).showToast();
+        $(document).ready(function () {
+            var spreadsheetId = '1NYl838ERKhx42vrycL6bKxxWEpWwCbFW1OFQ0ePGrw0';
+            var apiKey = 'AIzaSyAUIMhDDRWdIkqP1DhPVXlp0QN6AawIQ04';
+            var sheetName = 'DataList';
+            var column = 'D';
+            // Получение "глубины" столбца D
+            var depthUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!${column}:${column}?key=${apiKey}`;
+            $.get(depthUrl, function (response) {
+                var depth = response.values.length;
+                // Формирование диапазона
+                var range = `${sheetName}!A2:I${depth + 1}`;
+                var dataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
+                // Получение данных
+                $.get(dataUrl, function (response) {
+                    var values = response.values;
+                    // Преобразование данных в формат JSON
+                    jsonData = values.map(row => ({
+                        'Name': row[0],
+                        'Series': row[1],
+                        'Price': row[2],
+                        'TypeClaim': row[3],
+                        'ResistBust': row[4],
+                        'OtherBust': row[5],
+                        'Image': row[6],
+                        'Badge': row[7],
+                        'TextureName': row[8]
+                    }));
+                    //console.table(jsonData);
+                });
+            });
+            setTimeout(function () {
+                Toastify({
+                    text: "Данные успешно загружены!",
+                    duration: 2000,
+                    close: true
+                }).showToast();
+            }, 500);
+        });
+
+        function hexToString(hex) {
+            let string = '';
+            for (let i = 0; i < hex.length; i += 4) {
+                const charCode = parseInt(hex.substr(i, 4), 16);
+                string += String.fromCharCode(charCode);
+            }
+            return string;
+        }
+
+
+        var TextureName;
+        var russianShareValue;
+        async function getShareValueFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareValue = urlParams.get('share');
+            console.log(shareValue); // Выведет значение параметра "share" или null, если он отсутствует
+            // Проверяем, что значение shareValue не пустое
+            if (shareValue) {
+                Toastify({
+                    text: 'Использованная вами ссылка на скин загружается..\nПодождите секунду..',
+                    duration: 4000, // Продолжительность отображения сообщения в миллисекундах
+                    close: true
+                }).showToast();
+                // Вместо простого тайм-аута, вам нужно получить данные для jsonData из асинхронного источника, например, с помощью AJAX запроса
+                // Пример с тайм-аутом в 3 секунды для демонстрации
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                console.log('Значение в 16-ричном коде:');
+                console.log(shareValue);
+                // Обратное преобразование из 16-ричного кода в русский текст
+                russianShareValue = hexToString(shareValue);
+                console.log('Обратное преобразование:');
+                console.log(russianShareValue);
+                // После получения данных или выполнения асинхронных операций, вызываем GETNameFromCard(russianShareValue)
+                if (jsonData) {
+                    //GETNameFromCard(russianShareValue);
+                } else {
+                    console.log('jsonData is empty');
+                }
+            }
+
+            LoadTexture(russianShareValue);
+        }
+        // Обработчик события DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', async function () {
+            await getShareValueFromURL();
+        });
+
+
+
+
+
+
+
+        function LoadTexture(NameSkins) {
+            // Перебираем массив jsonData и ищем объект с соответствующим именем скина
+            for (let i = 0; i < jsonData.length; i++) {
+                if (jsonData[i].Name === NameSkins) {
+                    TextureName = jsonData[i].TextureName;
+                    break;
+                }
+            }
+            console.log(TextureName);
+            document.getElementById('buttontest').name = TextureName;
+            document.getElementById('buttontest').click();
+
+            // В этой точке TextureName содержит значение TextureName для указанного скина
+        }
+
+        var modelTexture;
+
+
+
+        function main() {
+            // Создаём canvas и WebGLRenderer
+            const canvas = document.querySelector('#c');
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                canvas
+            });
+
+
+
+            // Устанавливаем параметры камеры
+            const fov = 45;
+            const aspect = 2;
+            const near = 0.001;
+            const far = 2000;
+            const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.set(-10, 3, 0);
+            camera.rotation.y = Math.PI * -0.5;
+            const controls = new OrbitControls(camera, canvas);
+            controls.target.set(0, 3, 0);
+
+            controls.minDistance = 1; // Минимальное расстояние
+            controls.maxDistance = 25; // Максимальное расстояние
+
+            controls.maxPolarAngle = THREE.MathUtils.degToRad(96.5); // Установить максимальный угол наклона в 45 градусов
+
+            controls.mouseButtons = {
+                LEFT: THREE.MOUSE.ROTATE,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: null, // Здесь мы устанавливаем null для правой кнопки мыши, чтобы отключить перемещение
+            };
+            controls.enablePan = false;
+            controls.update();
+
+            // Создаём сцену и устанавливаем цвет фона
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color('black');
+
+            // Загружаем загрузчик текстур
+            const textureLoader = new THREE.TextureLoader();
+            
+
+            // Устанавливаем размер плоскости и загружаем текстуру для неё
+            const planeSize = 2000;
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load('./ATLAS_SIMPLE_02.png');
+            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.magFilter = THREE.NearestFilter;
+            const repeats = planeSize / 2;
+            texture.repeat.set(repeats, repeats);
+
+            // Создаём геометрию и материал плоскости
+            const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+            const planeMat = new THREE.MeshPhongMaterial({
+                map: texture, // Используем новую текстуру, если она есть, иначе - текстуру по умолчанию
+                side: THREE.DoubleSide,
+            });
+            const mesh = new THREE.Mesh(planeGeo, planeMat);
+            mesh.rotation.x = Math.PI * -0.5;
+            scene.add(mesh);
+
+            // Добавляем освещение
+            const skyColor = 0xB1E1FF;
+            const groundColor = 0xB97A20;
+            const intensity = 2;
+            const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+            scene.add(light);
+
+            // Загружаем текстуру неба и создаём Skybox
+            var textureSky = loader.load('./SimpleSky.png', function (texture) {
+                var geometry = new THREE.SphereGeometry(1000, 60, 40);
+                var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+                var skybox = new THREE.Mesh(geometry, material);
+                skybox.rotateX(90 * (Math.PI / 180));
+                skybox.rotateY(90 * (Math.PI / 180));
+                skybox.position.y = -100;
+                scene.add(skybox);
+            });
+
+            // Добавляем направленное освещение
+            const color = 0xFFFFFF;
+            const dirLightIntensity = 2.5;
+            const dirLight = new THREE.DirectionalLight(color, dirLightIntensity);
+            dirLight.position.set(0, 10, 0);
+            dirLight.target.position.set(-5, 0, 0);
+            scene.add(dirLight);
+            scene.add(dirLight.target);
+
+            // Загружаем 3D модель
+
+            // Загружаем текстуру для объекта
+
+            const objLoader = new OBJLoader();
+            let model;
+
+            // Добавляем обработчик события на кнопку
+            const button = document.getElementById("buttontest");
+            button.addEventListener("click", function () {
+                const textureName = this.getAttribute("name"); // Получаем имя текстуры из атрибута name кнопки
+
+                // Загружаем текстуру для объекта
+                textureLoader.load('./scans/' + textureName + '.png', (modelTexture) => {
+                    
+                    modelTexture.magFilter = THREE.NearestFilter;
+                    modelTexture.minFilter = THREE.NearestFilter;
+
+                    const objLoader = new OBJLoader();
+                    objLoader.load('./rig_norm_0000.obj', (root) => {
+                        root.traverse((node) => {
+                            if (node instanceof THREE.Mesh) {
+                                node.material = new THREE.MeshPhongMaterial({
+                                    map: modelTexture,
+                                });
+                            }
+                        });
+                        root.position.y = 1;
+                        scene.add(root);
+                        model = root;
                     });
                 });
-                setTimeout(function () {
-                    Toastify({
-                        text: "Данные успешно загружены!",
-                        duration: 2000,
-                        close: true
-                    }).showToast();
-                }, 500);
             });
 
-            function hexToString(hex) {
-                let string = '';
-                for (let i = 0; i < hex.length; i += 4) {
-                    const charCode = parseInt(hex.substr(i, 4), 16);
-                    string += String.fromCharCode(charCode);
+            let autoRotation = false;
+
+
+
+            // Функция для изменения размеров рендера при изменении размеров окна
+            function resizeRendererToDisplaySize(renderer) {
+                const canvas = renderer.domElement;
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                const needResize = canvas.width !== width || canvas.height !== height;
+                if (needResize) {
+                    renderer.setSize(width, height, false);
                 }
-                return string;
+                return needResize;
             }
 
-
-            var TextureName;
-            var russianShareValue;
-            async function getShareValueFromURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const shareValue = urlParams.get('share');
-                console.log(shareValue); // Выведет значение параметра "share" или null, если он отсутствует
-                // Проверяем, что значение shareValue не пустое
-                if (shareValue) {
-                    Toastify({
-                        text: 'Использованная вами ссылка на скин загружается..\nПодождите секунду..',
-                        duration: 4000, // Продолжительность отображения сообщения в миллисекундах
-                        close: true
-                    }).showToast();
-                    // Вместо простого тайм-аута, вам нужно получить данные для jsonData из асинхронного источника, например, с помощью AJAX запроса
-                    // Пример с тайм-аутом в 3 секунды для демонстрации
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                    console.log('Значение в 16-ричном коде:');
-                    console.log(shareValue);
-                    // Обратное преобразование из 16-ричного кода в русский текст
-                    russianShareValue = hexToString(shareValue);
-                    console.log('Обратное преобразование:');
-                    console.log(russianShareValue);
-                    // После получения данных или выполнения асинхронных операций, вызываем GETNameFromCard(russianShareValue)
-                    if (jsonData) {
-                        //GETNameFromCard(russianShareValue);
-                    } else {
-                        console.log('jsonData is empty');
-                    }
+            // Основная функция рендеринга сцены
+            function render() {
+                if (resizeRendererToDisplaySize(renderer)) {
+                    const canvas = renderer.domElement;
+                    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                    camera.updateProjectionMatrix();
                 }
-
-                LoadTexture(russianShareValue);
-            }
-            // Обработчик события DOMContentLoaded
-            document.addEventListener('DOMContentLoaded', async function () {
-                await getShareValueFromURL();
-            });
-
-
-
-
-
-
-
-            function LoadTexture(NameSkins) {
-                // Перебираем массив jsonData и ищем объект с соответствующим именем скина
-                for (let i = 0; i < jsonData.length; i++) {
-                    if (jsonData[i].Name === NameSkins) {
-                        TextureName = jsonData[i].TextureName;
-                        break;
-                    }
-                }
-                console.log(TextureName);
-
-                // В этой точке TextureName содержит значение TextureName для указанного скина
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
             }
 
-            var modelTexture;
-
-
-            
-            function main() {
-                    // Создаём canvas и WebGLRenderer
-                    const canvas = document.querySelector('#c');
-                    const renderer = new THREE.WebGLRenderer({
-                        antialias: true,
-                        canvas
-                    });
-
-                    // Устанавливаем параметры камеры
-                    const fov = 45;
-                    const aspect = 2;
-                    const near = 0.1;
-                    const far = 100000;
-                    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-                    camera.position.set(-10, 3, 0);
-                    camera.rotation.y = Math.PI * -0.5;
-                    const controls = new OrbitControls(camera, canvas);
-                    controls.target.set(0, 3, 0);
-                    
-                    controls.minDistance = 1; // Минимальное расстояние
-                    controls.maxDistance = 25; // Максимальное расстояние
-
-                    controls.maxPolarAngle = THREE.MathUtils.degToRad(105); // Установить максимальный угол наклона в 45 градусов
-
-
-                    controls.mouseButtons = {
-                        LEFT: THREE.MOUSE.ROTATE,
-                        MIDDLE: THREE.MOUSE.DOLLY,
-                        RIGHT: null, // Здесь мы устанавливаем null для правой кнопки мыши, чтобы отключить перемещение
-                    };
-                    controls.update();
-
-                    // Создаём сцену и устанавливаем цвет фона
-                    const scene = new THREE.Scene();
-                    scene.background = new THREE.Color('black');
-
-                    // Загружаем текстуры
-                    const textureLoader = new THREE.TextureLoader();
-                    let newTexture = null;
-
-                    // Загружаем текстуру для объекта
-                    newTexture = textureLoader.load('./scans/' + 'SKIN_COMMANDO_RED' + '.png');
-                    newTexture.magFilter = THREE.NearestFilter;
-                    newTexture.minFilter = THREE.NearestFilter;
-
-                    // Устанавливаем размер плоскости и загружаем текстуру для неё
-                    const planeSize = 2000;
-                    const loader = new THREE.TextureLoader();
-                    const texture = loader.load('./ATLAS_SIMPLE_02.png');
-                    texture.colorSpace = THREE.SRGBColorSpace;
-                    texture.wrapS = THREE.RepeatWrapping;
-                    texture.wrapT = THREE.RepeatWrapping;
-                    texture.magFilter = THREE.NearestFilter;
-                    const repeats = planeSize / 2;
-                    texture.repeat.set(repeats, repeats);
-
-                    // Создаём геометрию и материал плоскости
-                    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-                    const planeMat = new THREE.MeshPhongMaterial({
-                        map: texture, // Используем новую текстуру, если она есть, иначе - текстуру по умолчанию
-                        side: THREE.DoubleSide,
-                    });
-                    const mesh = new THREE.Mesh(planeGeo, planeMat);
-                    mesh.rotation.x = Math.PI * -0.5;
-                    scene.add(mesh);
-
-                    // Добавляем освещение
-                    const skyColor = 0xB1E1FF;
-                    const groundColor = 0xB97A20;
-                    const intensity = 2;
-                    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-                    scene.add(light);
-
-                    // Загружаем текстуру неба и создаём Skybox
-                    var textureSky = loader.load('./SimpleSky.png', function (texture) {
-                        var geometry = new THREE.SphereGeometry(1000, 60, 40);
-                        var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
-                        var skybox = new THREE.Mesh(geometry, material);
-                        skybox.rotateX(90 * (Math.PI / 180));
-                        skybox.rotateY(90 * (Math.PI / 180));
-                        skybox.position.y = -100;
-                        scene.add(skybox);
-                    });
-
-                    // Добавляем направленное освещение
-                    const color = 0xFFFFFF;
-                    const dirLightIntensity = 2.5;
-                    const dirLight = new THREE.DirectionalLight(color, dirLightIntensity);
-                    dirLight.position.set(0, 10, 0);
-                    dirLight.target.position.set(-5, 0, 0);
-                    scene.add(dirLight);
-                    scene.add(dirLight.target);
-
-                    // Загружаем 3D модель
-                    const objLoader = new OBJLoader();
-                    let model;
-                    modelTexture = newTexture; // Изначально устанавливаем текстуру по умолчанию
-
-                    if (modelTexture) {
-                        objLoader.load('./rig_norm_0000.obj', (root) => {
-                            root.traverse((node) => {
-                                if (node instanceof THREE.Mesh) {
-                                    node.material = new THREE.MeshPhongMaterial({
-                                        map: modelTexture,
-                                    });
-                                }
-                            });
-                            root.position.y = 1;
-                            scene.add(root);
-                            model = root;
-                        });
-                    } else {
-                        console.log("No valid texture available for the model.");
-                    }
-
-                    let autoRotation = false;
-
-                    
-
-                    // Функция для изменения размеров рендера при изменении размеров окна
-                    function resizeRendererToDisplaySize(renderer) {
-                        const canvas = renderer.domElement;
-                        const width = canvas.clientWidth;
-                        const height = canvas.clientHeight;
-                        const needResize = canvas.width !== width || canvas.height !== height;
-                        if (needResize) {
-                            renderer.setSize(width, height, false);
-                        }
-                        return needResize;
-                    }
-
-                    // Основная функция рендеринга сцены
-                    function render() {
-                        if (resizeRendererToDisplaySize(renderer)) {
-                            const canvas = renderer.domElement;
-                            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-                            camera.updateProjectionMatrix();
-                        }
-                        renderer.render(scene, camera);
-                        requestAnimationFrame(render);
-                    }
-
-                    // Функция анимации
-                    function animate() {
-                        if (autoRotation) {
-                            model.rotation.y += 0.007;
-                        }
-                        controls.update();
-                        requestAnimationFrame(animate);
-                    }
-
-                    requestAnimationFrame(render);
-                    animate();
+            // Функция анимации
+            function animate() {
+                if (autoRotation) {
+                    model.rotation.y += 0.007;
                 }
-                main();
+                controls.update();
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(render);
+            animate();
+        }
+        main();
 
     </script>
 
